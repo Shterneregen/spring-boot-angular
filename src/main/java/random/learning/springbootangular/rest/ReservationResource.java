@@ -1,5 +1,8 @@
 package random.learning.springbootangular.rest;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -13,8 +16,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import random.learning.springbootangular.converter.RoomEntityToReservationResponseConverter;
+import random.learning.springbootangular.entity.RoomEntity;
 import random.learning.springbootangular.model.request.ReservationRequest;
 import random.learning.springbootangular.model.response.ReservationResponse;
+import random.learning.springbootangular.repository.PageableRoomRepository;
+import random.learning.springbootangular.repository.RoomRepository;
 
 import java.time.LocalDate;
 
@@ -22,11 +29,26 @@ import java.time.LocalDate;
 @RequestMapping(ResourceConstants.ROOM_RESERVATION_V1)
 public class ReservationResource {
 
+    @Autowired
+    private PageableRoomRepository pageableRoomRepository;
+    @Autowired
+    private RoomRepository roomRepository;
+
+    private RoomEntityToReservationResponseConverter converter = new RoomEntityToReservationResponseConverter();
+
     @GetMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<ReservationResponse> getAvailableRooms(
+    public Page<ReservationResponse> getAvailableRooms(
             @RequestParam(value = "checkin") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkin,
-            @RequestParam(value = "checkout") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkout) {
-        return new ResponseEntity<>(new ReservationResponse(), HttpStatus.OK);
+            @RequestParam(value = "checkout") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkout,
+            Pageable pageable) {
+
+        Page<RoomEntity> roomEntityList = pageableRoomRepository.findAll(pageable);
+        return roomEntityList.map(converter::convert);
+    }
+
+    @GetMapping(path = "/{roomId}", produces = MediaType.APPLICATION_JSON_UTF8_VALUE)
+    public ResponseEntity<RoomEntity> getRoomById(@PathVariable Long roomId) {
+        return ResponseEntity.of(roomRepository.findById(roomId));
     }
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
