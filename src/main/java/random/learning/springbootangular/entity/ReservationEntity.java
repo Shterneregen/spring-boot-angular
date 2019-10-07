@@ -1,24 +1,33 @@
-package random.learning.springbootangular.model.response;
+package random.learning.springbootangular.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
-public class ReservationResponse {
+@Entity
+@Table(name = "Reservation")
+public class ReservationEntity {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
     private Long id;
+    @NotNull
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate checkin;
+    @NotNull
     @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate checkout;
+    @ManyToOne
+    private RoomEntity roomEntity;
 
-    public ReservationResponse(Long id, LocalDate checkin, LocalDate checkout) {
-        this.id = id;
+    public ReservationEntity(@NotNull LocalDate checkin, @NotNull LocalDate checkout) {
         this.checkin = checkin;
         this.checkout = checkout;
     }
 
-    public ReservationResponse() {
+    public ReservationEntity() {
     }
 
     public Long getId() {
@@ -43,5 +52,13 @@ public class ReservationResponse {
 
     public void setCheckout(LocalDate checkout) {
         this.checkout = checkout;
+    }
+
+    public RoomEntity getRoomEntity() {
+        return roomEntity;
+    }
+
+    public void setRoomEntity(RoomEntity roomEntity) {
+        this.roomEntity = roomEntity;
     }
 }
