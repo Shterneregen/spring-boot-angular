@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, FormGroup } from '@angular/forms';
+import { Observable } from 'rxjs';
+import { catchError, map } from 'rxjs/operators';
+import { HttpClient} from '@angular/common/http';
 
 @Component({
   selector: 'app-root',
@@ -9,6 +12,9 @@ import { FormControl, FormGroup } from '@angular/forms';
 
 export class AppComponent implements OnInit {
 
+  constructor(private http : HttpClient) {}
+
+  private baseUrl:string = 'http://localhost:8080';
   public submitted : boolean;
   roomsearch : FormGroup;
   rooms : Room[];
@@ -19,16 +25,26 @@ export class AppComponent implements OnInit {
           checkout: new FormControl('')
       });
 
-    this.rooms = ROOMS;
   }
 
   onSubmit({value,valid}: {value:Roomsearch, valid:boolean}) {
-    console.log(value);
+    this.getAll()
+      .subscribe(
+                rooms => {this.rooms =  rooms},
+                err => {console.log(err)}
+                );
+
   }
 
   reserveRoom(value:string) {
     console.log("Room id for reservation: " + value)
   }
+
+  getAll() : Observable<Room[]> {
+    return this.http.get(this.baseUrl + '/room/reservation/v1?checkin=2019-10-19&checkout=2019-10-22')
+      .pipe(map(res => res.content));
+  }
+
 }
 
 export interface Roomsearch {
@@ -43,23 +59,3 @@ export interface Room {
   links:string;
 }
 
-var ROOMS:Room[] = [
-{
-    "id" : "001",
-    "roomNumber" : "666",
-    "price" : "20",
-    "links" : ""
-},
-{
-    "id" : "002",
-    "roomNumber" : "777",
-    "price" : "24",
-    "links" : ""
-},
-{
-    "id" : "003",
-    "roomNumber" : "999",
-    "price" : "30",
-    "links" : ""
-}
-]
