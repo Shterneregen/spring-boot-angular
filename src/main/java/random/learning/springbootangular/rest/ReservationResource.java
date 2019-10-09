@@ -28,6 +28,7 @@ import random.learning.springbootangular.repository.PageableRoomRepository;
 import random.learning.springbootangular.repository.ReservationRepository;
 import random.learning.springbootangular.repository.RoomRepository;
 
+import javax.validation.Valid;
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -63,7 +64,7 @@ public class ReservationResource {
     }
 
     @PostMapping(produces = MediaType.APPLICATION_JSON_UTF8_VALUE, consumes = MediaType.APPLICATION_JSON_UTF8_VALUE)
-    public ResponseEntity<ReservationResponse> createReservation(@RequestBody ReservationRequest reservationRequest) {
+    public ResponseEntity<ReservationResponse> createReservation(@RequestBody @Valid ReservationRequest reservationRequest) {
         ReservationEntity reservationEntity = conversionService.convert(reservationRequest, ReservationEntity.class);
         reservationRepository.save(reservationEntity);
 

@@ -2,13 +2,16 @@ package random.learning.springbootangular.model.request;
 
 import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.validation.constraints.NotNull;
 import java.time.LocalDate;
 
 public class ReservationRequest {
     private Long id;
     private Long roomId;
+    @NotNull
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate checkin;
+    @NotNull
     @DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
     private LocalDate checkout;
 
